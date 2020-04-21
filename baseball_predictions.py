@@ -10,7 +10,7 @@ from matplotlib import style
 import pickle
 pd.options.mode.chained_assignment = None
 
-class dataset():
+class Dataset():
     
     #building dataset
     def __init__(self):
@@ -53,10 +53,10 @@ class dataset():
     #splitting data into training and test
     def split_data(self):
         #getting attribute and label arrays for combined data
-        attr_comb = np.array(self.data_comb.drop(['W'],1))
-        labl_comb = np.array(self.data_wins)
+        self.attr_comb = np.array(self.data_comb.drop(['W'],1))
+        self.labl_comb = np.array(self.data_wins)
         #splitting data into training and test
-        self.attr_train, self.attr_test, self.labl_train, self.labl_test = sklearn.model_selection.train_test_split(attr_comb,labl_comb, test_size=0.2)
+        self.attr_train, self.attr_test, self.labl_train, self.labl_test = sklearn.model_selection.train_test_split(self.attr_comb,self.labl_comb, test_size=0.2)
     
     #training model to be saved
     def train_model(self):
@@ -67,6 +67,9 @@ class dataset():
             #using linear regression
             linear = linear_model.LinearRegression()
             
+            #splitting data into training and test
+            self.attr_train, self.attr_test, self.labl_train, self.labl_test = sklearn.model_selection.train_test_split(self.attr_comb,self.labl_comb, test_size=0.2)
+            
             #training model
             linear.fit(self.attr_train, self.labl_train)
             
@@ -76,6 +79,7 @@ class dataset():
             
             #saving model
             if acc_comb > best_acc:
+                best_acc = acc_comb
                 with open("baseballwinpredictionmodel.pickle", "wb") as f:
                     pickle.dump(linear, f)
                     
@@ -97,12 +101,12 @@ def predict_wins(model, data):
 #showing predicted wins vs actual wins for known data
 def compare_predictions(predictions, labl_test):
     for i in range(len(predictions)):
-        print("Predicted Wins:", round(predictions[i]), "\tActual Wins:", labl_test[i])
+        print("Predicted Wins:", np.round(predictions[i]), "\tActual Wins:", labl_test[i])
 
 #showing prediction for user inputted stat
 def display_prediction(predictions):
     for i in range(len(predictions)):
-        print("Predicted Wins:", round(predictions[i]))
+        print("Predicted Wins:", np.round(predictions[i]))
 
 #accuracy of model
 def show_model_accuracy(model, attr_comb_test, labl_comb_test):
@@ -124,7 +128,7 @@ def visualize_stat(data):
         x_attr = input("What stat would you like to see: ")
         if x_attr == "QUIT":
             return True
-        if x_attr in data:
+        elif x_attr in data:
             break
         else:
             print("Invalid Stat, Please Try Again.")
@@ -141,7 +145,7 @@ def visualize_stat(data):
 
 def main():
     
-    data = dataset()
+    data = Dataset()
     data.normalize()
     data.split_data()
     #data.train_model()
@@ -157,4 +161,3 @@ def main():
             break
 
 main()
-    
