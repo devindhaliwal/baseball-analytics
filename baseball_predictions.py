@@ -121,7 +121,7 @@ def print_menu(data):
 def visualize_stat(data):
     #checking which stat to visualize
     while 1:
-        x_attr = input("What stat would you like to see: ").lower()
+        x_attr = input("What stat would you like to see: ")
         if x_attr == "QUIT":
             return True
         if x_attr in data:
