@@ -1,163 +1,137 @@
 # Devin Dhaliwal
 
 import pandas as pd
-import numpy as np
 import sklearn
 from sklearn import linear_model
-from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
-from matplotlib import style
 import pickle
-pd.options.mode.chained_assignment = None
+import seaborn as sns
 
-class Dataset():
-    
-    #building dataset
-    def __init__(self):
-        #getting hitting avgs data
-        data = pd.read_csv("baseball.csv")
-        data = data.filter(items=['Team','Year','W','OBP','SLG','BA'])
-        
-        #adding OPS
-        OPS_data = data[['OBP','SLG']]
-        sum_col = OPS_data['OBP'] + OPS_data['SLG']
-        OPS_data['OPS'] = sum_col
-        OPS_data = OPS_data.drop(['OBP','SLG'],1)
-        data = pd.merge(data, OPS_data, left_index=True,right_index=True)
-        
-        #getting other hitting and pitching data
-        data_1 = pd.read_csv("teams.csv")
-        data_1 = data_1.filter(items=['teamID','yearID','R','H','2B','3B','HR','BB','SO','SB','CS','W','RA','ER','ERA','CG','SHO','SV','HA','HRA','BBA','SOA','E','DP','FP'])
-        data_1 = data_1.query('yearID >= 1962')
-        data_1 = data_1.rename(columns={'teamID':'Team','yearID':'Year'})
-        
-        #combining hitting and pitching data
-        self.data_comb = pd.merge(data,data_1,on=['Team','Year'])
-        self.data_comb = self.data_comb.rename(columns={'W_x':'W'})
-        
-        #dropping uneeded data after combining
-        self.data_comb = self.data_comb.drop(['Team','Year','W_y'],1)
-        #saving non-normalized data for graph display
-        self.data_norm = self.data_comb
-        #saving wins data
-        self.data_wins = self.data_comb[['W']]
-    
-    #normalizing features
-    def normalize(self):
-        scalar = MinMaxScaler()
-        self.data_comb = scalar.fit_transform(self.data_comb.drop(['W'],1))        
-        #putting data back into dataframe
-        self.data_comb = pd.DataFrame(data=self.data_comb, columns=['OBP','SLG','BA','OPS','R','H','2B','3B','HR','BB','SO','SB','CS','RA','ER','ERA','CG','SHO','SV','HA','HRA','BBA','SOA','E','DP','FP'])
-        self.data_comb = pd.merge(self.data_wins, self.data_comb, left_index=True,right_index=True)
+#getting hitting avgs data
+data = pd.read_csv("baseball.csv")
+data = data.filter(items=['Team','Year','W','OBP','SLG','BA'])
 
-    #splitting data into training and test
-    def split_data(self):
-        #getting attribute and label arrays for combined data
-        self.attr_comb = np.array(self.data_comb.drop(['W'],1))
-        self.labl_comb = np.array(self.data_wins)
-        #splitting data into training and test
-        self.attr_train, self.attr_test, self.labl_train, self.labl_test = sklearn.model_selection.train_test_split(self.attr_comb,self.labl_comb, test_size=0.2)
-    
-    #training model to be saved
-    def train_model(self):
-        best_acc = 0
-        #saving best model out of 100 attempts
-        for i in range(1000):
-            
-            #using linear regression
-            linear = linear_model.LinearRegression()
-            
-            #splitting data into training and test
-            self.attr_train, self.attr_test, self.labl_train, self.labl_test = sklearn.model_selection.train_test_split(self.attr_comb,self.labl_comb, test_size=0.2)
-            
-            #training model
-            linear.fit(self.attr_train, self.labl_train)
-            
-            #accuracy of model
-            acc_comb = linear.score(self.attr_test, self.labl_test)
-            print("COMBINED STATS:",acc_comb*100, "% accuracy")
-            
-            #saving model
-            if acc_comb > best_acc:
-                best_acc = acc_comb
-                with open("baseballwinpredictionmodel.pickle", "wb") as f:
-                    pickle.dump(linear, f)
-                    
-#loading saved model
-def load_model():
-    pickle_in = open("baseballwinpredictionmodel.pickle", "rb")
-    model = pickle.load(pickle_in)
-    return model
+#adding OPS
+ops = pd.DataFrame(data['OBP']+data['SLG'])
+data = data.join(ops)
+data.rename(columns={ data.columns[6]: "OPS" }, inplace = True)
 
-#getting user stats
-#def user_stats():
-    
-    
-#generating predictions
-def predict_wins(model, data):
-    predictions = model.predict(data)
-    return predictions
+#getting other hitting and pitching data
+data_1 = pd.read_csv("teams.csv")
+data_1 = data_1.filter(items=['teamID','yearID','R','H','2B','3B','HR','BB','SO','SB','CS','W','RA','ER','ERA','CG','SHO','SV','HA','HRA','BBA','SOA','E','DP','FP'])
+data_1 = data_1.query('yearID >= 1962')
+data_1 = data_1.rename(columns={'teamID':'Team','yearID':'Year'})
 
-#showing predicted wins vs actual wins for known data
-def compare_predictions(predictions, labl_test):
-    for i in range(len(predictions)):
-        print("Predicted Wins:", np.round(predictions[i]), "\tActual Wins:", labl_test[i])
+#combining datasets
+data_comb = pd.merge(data,data_1,on=['Team','Year'])
+data_comb = data_comb.rename(columns={'W_x':'W'})
 
-#showing prediction for user inputted stat
-def display_prediction(predictions):
-    for i in range(len(predictions)):
-        print("Predicted Wins:", np.round(predictions[i]))
+#dropping uneeded data after combining
+data_comb = data_comb.drop(['Team','Year','W_y'],1)
 
-#accuracy of model
-def show_model_accuracy(model, attr_comb_test, labl_comb_test):
-    acc = model.score(attr_comb_test, labl_comb_test)
-    print("\nACCURACY:",acc*100, "PERCENT")
+#assigning columns to x and y for predictions
+x = data_comb.drop('W', 1)
+y = data_comb[['W']]
 
-#printing menu
-def print_menu(data):
-    print("STAT OPTIONS:")
-    for stat in data:
-        if stat != 'W':
-            print(stat)
-    print("QUIT")
+#building model
+def build_model():
+    best_acc = 0
+    for i in range(1000):
 
-#visualizing specific results
-def visualize_stat(data):
-    #checking which stat to visualize
+        x_train, x_test, y_train, y_test = sklearn.model_selection.train_test_split(x, y, test_size=0.1)
+
+        model = linear_model.LinearRegression()
+        model.fit(x_train, y_train)
+
+        acc = model.score(x_test, y_test)*100
+
+        if acc > best_acc:
+            best_acc = acc
+            with open("baseballwinpredictionmodel.pickle", "wb") as f:
+                pickle.dump(model, f)
+
+    print("Model Accuracy:", best_acc)
+
+def predict_wins():
+    #df with avg values of each stat
+    df_predict = pd.DataFrame([x.mean()])
+
+    #getting user inputs for stats to predict wins
     while 1:
-        x_attr = input("What stat would you like to see: ")
-        if x_attr == "QUIT":
-            return True
-        elif x_attr in data:
+        stat_choice = input("Please enter a stat you would like to test or \"done\" to continue: ")
+        if stat_choice.lower() == "done":
             break
         else:
-            print("Invalid Stat, Please Try Again.")
+            if stat_choice in df_predict:
+                stat = float(input("Enter value for " + stat_choice + " you would like to test: "))
+                df_predict[stat_choice] = stat
+            else:
+                print("Invalid Stat...")
+                continue
 
-    #displaying graph with attribute relating to wins
-    style.use("ggplot")
-    plt.scatter(data[x_attr],data['W'])
-    plt.xlabel(x_attr)
-    plt.ylabel('Wins')
-    z = np.polyfit(data[x_attr],data['W'],1)
-    p = np.poly1d(z)
-    plt.plot(data[x_attr],p(data[x_attr]), "g--")
-    plt.show()
+    #generating prediction
+    pickle_in = open("baseballwinpredictionmodel.pickle", "rb")
+    model = pickle.load(pickle_in)
+    result = model.predict(df_predict)
+
+    #making sure prediction is in range
+    if int(result) > 162:
+        result = 162
+
+    if int(result) < 0:
+        result = 0
+
+    #printing prediction
+    print("Predicted Wins:", int(result))
+
+#visualizing impact of user chosen stat on wins
+def visualize_stat():
+    while 1:
+        stat_choice = input("Please enter a stat you would like visualize or \"done\" to quit: ")
+        if stat_choice.lower() == "done":
+            break
+        else:
+            if stat_choice in data_comb:
+                sns.regplot(x=stat_choice, y='W', data=data_comb, line_kws={'color': 'red'})
+                plt.show()
+            else:
+                print("Invalid Stat...")
+                continue
+
+#printing menu including available stats and options to predict or graph
+def print_menu():
+    print("\nAvailable Stats:")
+    for stat in x:
+        print(stat)
+
+    while 1:
+        choice = input("Enter \"1\" to predict wins based on stats you enter"
+                           "\nEnter \"2\" to visualize a stats impact on wins"
+                           "\nEnter \"quit\" to quit: ")
+
+        if choice != "1" and choice != "2" and choice.lower() != "quit":
+            print("Invalid Input...")
+            continue
+        elif choice.lower() == "quit":
+            return -1
+        elif choice == "1":
+            return 1
+        else:
+            return 2
 
 def main():
-    
-    data = Dataset()
-    data.normalize()
-    data.split_data()
-    #data.train_model()
-    model = load_model()
-    predictions = predict_wins(model, data.attr_test)
-    compare_predictions(predictions, data.labl_test)
-    #display_prediction(predictions)
-    show_model_accuracy(model, data.attr_test, data.labl_test)
-    print_menu(data.data_norm)
+
+    #build_model()
+
     while 1:
-        quit = visualize_stat(data.data_norm)
-        if quit:
+        choice = print_menu()
+
+        if choice == 1:
+            predict_wins()
+        elif choice == 2:
+            visualize_stat()
+        else:
             break
+
 
 main()
