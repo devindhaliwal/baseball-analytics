@@ -113,8 +113,8 @@ def visualize_team_stat():
             if stat_choice in data_comb:
                 team_choice = input("Please enter a team (3 letter abbreviation) you would like visualize " + stat_choice + " for: ").upper()
                 if team_choice in team_names:
-                        year_choice = int(input("Please enter a year you would like to start at (between 1916 and 2014): "))
-                        if year_choice >= 1916 and year_choice <= 2014:
+                        year_choice = int(input("Please enter a year you would like to start at (between 1916 and 2018): "))
+                        if year_choice >= 1916 and year_choice <= 2018:
                             data_team = data[(data['Year'] > year_choice) & (data['Team'] == team_choice)]
                             sns.set()
                             fig = plt.figure(figsize=(15,10))
