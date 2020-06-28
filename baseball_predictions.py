@@ -2,13 +2,17 @@
 
 import pandas as pd
 import sklearn
-from sklearn import linear_model
+from sklearn import linear_model, neighbors
+from sklearn.naive_bayes import GaussianNB
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
 import matplotlib.pyplot as plt
 import pickle
 import seaborn as sns
+import datetime
 
 #getting data
-data = pd.read_csv("teams.csv")
+data = pd.read_csv("data/teams.csv")
 data = data.filter(items=['franchID','yearID','AB','R','H','2B','3B','HR','BB','SO','SB','CS','W','RA','ER','ERA','CG','SHO','SV','HA','HRA','BBA','SOA','E','DP','FP'])
 data = data.query('yearID >= 1916')
 data = data.rename(columns={'franchID':'Team','yearID':'Year'})
@@ -137,8 +141,88 @@ def visualize_team_stat():
             else:
                 print("Invalid Stat...")
                 continue
+            
+#predicting game outcome
+def predict_outcome():
+    game_data = pd.read_csv("games.csv")
+    game_data[['wind_speed','wind_direction']] = game_data.wind.str.split(",",expand=True) 
+    game_data[['temp','weather']] = game_data.weather.str.split(",",expand=True)
+    
+    new_dates = []
+    for date in game_data.date:
+        mydate = datetime.datetime.strptime(date, '%Y-%m-%d')
+        data = mydate.strftime('%B, %A')
+        new_dates.append(data)
+    
+    game_data['new_dates'] = new_dates
+    game_data[['month','day']] = game_data.new_dates.str.split(",",expand=True)
+    game_data[['temp','deg']] = game_data.temp.str.split(" ",expand=True)
+    game_data['temp'] = pd.to_numeric(game_data['temp'])
+    game_data[['wind_speed','mph']] = game_data.wind_speed.str.split(" ",expand=True)
+    game_data['wind_speed'] = pd.to_numeric(game_data['wind_speed'])
+    game_data[['start_time','ampm']] = game_data.start_time.str.split(" ",expand=True)
+    game_data[['hour','min']] = game_data.start_time.str.split(":",expand=True)
+    game_data['hour'] = pd.to_numeric(game_data['hour'])
+    game_data['min'] = pd.to_numeric(game_data['min'])
 
+    
+    times = []
+    for hour in game_data.hour:
+        if hour != 12:
+            hour += 12
+        times.append(hour)
+    
+    game_data['hour'] = times
+    game_data['start_time'] = game_data['hour']*60 + game_data['min']
+    
+    game_data['outcome'] = game_data['home_final_score'] - game_data['away_final_score']
+    results = []
+    for result in game_data.outcome:
+        if result > 0:
+            result = 1
+        else:
+            result = 0
+        results.append(result)
+    game_data['outcome'] = results
+    
+    game_data = game_data.filter(items=['month','day','outcome','away_final_score','home_final_score','elapsed_time','attendance', 'start_time','wind_speed','wind_direction','temp','weather'])
+    game_data.to_csv("game_outcomes.csv")
+    
+    oh_months = pd.get_dummies(game_data.month)
+    oh_days = pd.get_dummies(game_data.day)
+    oh_wind_direction = pd.get_dummies(game_data.wind_direction)
+    oh_weather = pd.get_dummies(game_data.weather)
+    
+    game_data = game_data.drop(['month','day','wind_direction','weather'], axis=1)
+    
+    game_data = game_data.join(oh_months)
+    game_data = game_data.join(oh_days)
+    game_data = game_data.join(oh_wind_direction)
+    game_data = game_data.join(oh_weather)
+    
+    game_data.to_csv("game_outcomes_preprocessed.csv")
+    
+    best_acc = 0
+    for i in range(10):
 
+        x_o = game_data.drop(['outcome','away_final_score','home_final_score'], axis=1)
+        y_o = game_data['outcome']
+
+        x_train, x_test, y_train, y_test = sklearn.model_selection.train_test_split(x_o, y_o, test_size=0.2)
+
+        model = RandomForestClassifier()
+        model.fit(x_train, y_train)
+
+        acc = model.score(x_test, y_test)*100
+
+        if acc > best_acc:
+            best_acc = acc
+            with open("baseballoutcomepredictionmodel.pickle", "wb") as f:
+                pickle.dump(model, f)
+
+    print("Model Accuracy:", best_acc)
+    #print(x_test)
+    
 
 #printing menu including available stats and options to predict or graph
 def print_menu():
@@ -180,5 +264,4 @@ def main():
         else:
             break
 
-
-main()
+predict_outcome()
