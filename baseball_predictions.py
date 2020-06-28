@@ -1,11 +1,9 @@
 # Devin Dhaliwal
 
 import pandas as pd
-import sklearn
-from sklearn import linear_model, neighbors
-from sklearn.naive_bayes import GaussianNB
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVC
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn import linear_model
+from sklearn.neighbors import KNeighborsClassifier
 import matplotlib.pyplot as plt
 import pickle
 import seaborn as sns
@@ -165,16 +163,73 @@ def predict_outcome():
     game_data['hour'] = pd.to_numeric(game_data['hour'])
     game_data['min'] = pd.to_numeric(game_data['min'])
 
-    
     times = []
     for hour in game_data.hour:
-        if hour != 12:
-            hour += 12
-        times.append(hour)
+        if hour == 11 or hour == 12:
+            times.append("day")
+        elif hour >= 1 and hour <= 4:
+            times.append("day")
+        else:
+            times.append("night")
+
+    game_data['start_time'] = times
     
-    game_data['hour'] = times
-    game_data['start_time'] = game_data['hour']*60 + game_data['min']
-    
+    elapsed_time = []
+    for time in game_data.elapsed_time:
+        if time < 182:
+            elapsed_time.append("less than 3 hours")
+        else:
+            elapsed_time.append("more than 3 hours")
+
+    game_data["elapsed_time"] = elapsed_time
+
+    wind_speed = []
+    for speed in game_data.wind_speed:
+        if speed == 0:
+            wind_speed.append("0 mph")
+        elif speed < 8:
+            wind_speed.append("1-7 mph")
+        elif speed < 12:
+            wind_speed.append("8-12 mph")
+        else:
+            wind_speed.append("13+ mph")
+
+    game_data["wind_speed"] = wind_speed
+
+    temps = []
+    for temp in game_data.temp:
+        if temp < 60:
+            temps.append("30-59")
+        elif temp < 70:
+            temps.append("60-69")
+        elif temp < 80:
+            temps.append("70-79")
+        elif temp < 90:
+            temps.append("80-89")
+        elif temp < 100:
+            temps.append("90-99")
+        else:
+            temps.append("100+")
+
+    game_data["temp"] = temps
+
+    attendance = []
+    for num in game_data.attendance:
+        if num < 10000:
+            attendance.append("0-9,999")
+        elif num < 20000:
+            attendance.append("10,000-19,999")
+        elif num < 30000:
+            attendance.append("20,000-29,999")
+        elif num < 40000:
+            attendance.append("30,000-39,999")
+        elif num < 50000:
+            attendance.append("40,000-49,999")
+        elif num < 60000:
+            attendance.append("50,000-60,000")
+
+    game_data["attendance"] = attendance
+
     game_data['outcome'] = game_data['home_final_score'] - game_data['away_final_score']
     results = []
     for result in game_data.outcome:
@@ -192,37 +247,67 @@ def predict_outcome():
     oh_days = pd.get_dummies(game_data.day)
     oh_wind_direction = pd.get_dummies(game_data.wind_direction)
     oh_weather = pd.get_dummies(game_data.weather)
+    oh_start_time = pd.get_dummies(game_data.start_time)
+    oh_elapsed_time = pd.get_dummies(game_data.elapsed_time)
+    oh_wind_speed = pd.get_dummies(game_data.wind_speed)
+    oh_temp = pd.get_dummies(game_data.temp)
+    oh_attendance = pd.get_dummies(game_data.attendance)
     
-    game_data = game_data.drop(['month','day','wind_direction','weather'], axis=1)
+    game_data = game_data.drop(['month','day','wind_direction','weather','start_time','temp','wind_speed','elapsed_time','attendance','home_final_score','away_final_score'], axis=1)
     
     game_data = game_data.join(oh_months)
     game_data = game_data.join(oh_days)
     game_data = game_data.join(oh_wind_direction)
     game_data = game_data.join(oh_weather)
-    
+    game_data = game_data.join(oh_start_time)
+    game_data = game_data.join(oh_elapsed_time)
+    game_data = game_data.join(oh_wind_speed)
+    game_data = game_data.join(oh_temp)
+    game_data = game_data.join(oh_attendance)
+
     game_data.to_csv("game_outcomes_preprocessed.csv")
-    
+
     best_acc = 0
     for i in range(10):
 
-        x_o = game_data.drop(['outcome','away_final_score','home_final_score'], axis=1)
+        x_o = game_data.drop(['outcome'], axis=1)
         y_o = game_data['outcome']
 
-        x_train, x_test, y_train, y_test = sklearn.model_selection.train_test_split(x_o, y_o, test_size=0.2)
+        x_train, x_test, y_train, y_test = train_test_split(x_o, y_o, test_size=0.1)
 
-        model = RandomForestClassifier()
+        model = KNeighborsClassifier(n_neighbors=137, p=1)
         model.fit(x_train, y_train)
 
-        acc = model.score(x_test, y_test)*100
+        acc = model.score(x_test, y_test) * 100
 
         if acc > best_acc:
             best_acc = acc
-            with open("baseballoutcomepredictionmodel.pickle", "wb") as f:
-                pickle.dump(model, f)
 
     print("Model Accuracy:", best_acc)
-    #print(x_test)
+    # print(x_test)
     
+    model.fit(x_o, y_o)
+    with open("baseballoutcomepredictionmodel.pickle", "wb") as f:
+        pickle.dump(model, f)
+
+    """
+    n_neighbors = list(range(1, 151))
+    p = [1, 2]
+    weights = ["uniform", "distance"]
+
+    hyperparameters = dict(n_neighbors=n_neighbors, p=p, weights=weights)
+    knn = KNeighborsClassifier()
+
+    x_o = game_data.drop(['outcome'], axis=1)
+    y_o = game_data['outcome']
+
+    tuning_model = GridSearchCV(knn, hyperparameters, cv=3)
+    best_model = tuning_model.fit(x_o, y_o)
+    print('Best p:', best_model.best_estimator_.get_params()['p'])
+    print('Best n_neighbors:', best_model.best_estimator_.get_params()['n_neighbors'])
+    print('Best weight:', best_model.best_estimator_.get_params()['weights'])
+    """
+
 
 #printing menu including available stats and options to predict or graph
 def print_menu():
@@ -264,4 +349,7 @@ def main():
         else:
             break
 
-predict_outcome()
+#predict_outcome()
+#main()
+
+
