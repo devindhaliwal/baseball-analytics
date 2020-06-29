@@ -10,7 +10,7 @@ import seaborn as sns
 import datetime
 
 #getting data
-data = pd.read_csv("data/teams.csv")
+data = pd.read_csv("teams.csv")
 data = data.filter(items=['franchID','yearID','AB','R','H','2B','3B','HR','BB','SO','SB','CS','W','RA','ER','ERA','CG','SHO','SV','HA','HRA','BBA','SOA','E','DP','FP'])
 data = data.query('yearID >= 1916')
 data = data.rename(columns={'franchID':'Team','yearID':'Year'})
@@ -29,6 +29,7 @@ hitting = hitting.join(ops)
 hitting.rename(columns={hitting.columns[3]: "OPS"}, inplace=True)
 data = data.join(hitting)
 data = data.dropna()
+data.to_csv("teams_preprocessed.csv")
 
 #getting list of teams and df with no team and year col
 team_names = data.Team.unique()
@@ -39,11 +40,11 @@ x = data_comb.drop('W', 1)
 y = data_comb[['W']]
 
 #building model
-def build_model():
+def build_win_prediction_model():
     best_acc = 0
     for i in range(1000):
 
-        x_train, x_test, y_train, y_test = sklearn.model_selection.train_test_split(x, y, test_size=0.1)
+        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.1)
 
         model = linear_model.LinearRegression()
         model.fit(x_train, y_train)
@@ -242,6 +243,10 @@ def predict_outcome():
     
     game_data = game_data.filter(items=['month','day','outcome','away_final_score','home_final_score','elapsed_time','attendance', 'start_time','wind_speed','wind_direction','temp','weather'])
     game_data.to_csv("game_outcomes.csv")
+
+    game_data['day'] = game_data['day'].str.lstrip()
+    game_data['wind_direction'] = game_data['wind_direction'].str.lstrip()
+    game_data['weather'] = game_data["weather"].str.lstrip()
     
     oh_months = pd.get_dummies(game_data.month)
     oh_days = pd.get_dummies(game_data.day)
@@ -285,7 +290,7 @@ def predict_outcome():
 
     print("Model Accuracy:", best_acc)
     # print(x_test)
-    
+
     model.fit(x_o, y_o)
     with open("baseballoutcomepredictionmodel.pickle", "wb") as f:
         pickle.dump(model, f)
@@ -335,7 +340,7 @@ def print_menu():
 
 def main():
 
-    #build_model()
+    #build_win_prediction_model()
 
     while 1:
         choice = print_menu()
