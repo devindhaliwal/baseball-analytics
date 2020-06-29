@@ -312,7 +312,63 @@ def predict_outcome():
     print('Best n_neighbors:', best_model.best_estimator_.get_params()['n_neighbors'])
     print('Best weight:', best_model.best_estimator_.get_params()['weights'])
     """
+    
+def visualize_gameday_factors(x=None, y=None, hue=None):
 
+    game_data = pd.read_csv("games.csv")
+    game_data[['wind_speed', 'wind_direction']] = game_data.wind.str.split(",", expand=True)
+    game_data[['temp', 'weather']] = game_data.weather.str.split(",", expand=True)
+
+    new_dates = []
+    for date in game_data.date:
+        mydate = datetime.datetime.strptime(date, '%Y-%m-%d')
+        data = mydate.strftime('%B, %A')
+        new_dates.append(data)
+
+    attendance = []
+    for i in game_data.attendance:
+        i = round(i / 5000) * 5000
+        attendance.append(i)
+
+
+    elapsed_time = []
+    for i in game_data.elapsed_time:
+        i = round(i / 10) * 10
+        elapsed_time.append(i)
+    game_data["elapsed_time"] = elapsed_time
+
+    game_data['new_dates'] = new_dates
+    game_data[['month', 'day']] = game_data.new_dates.str.split(",", expand=True)
+    game_data[['temp', 'deg']] = game_data.temp.str.split(" ", expand=True)
+    game_data['temp'] = pd.to_numeric(game_data['temp'])
+    game_data[['wind_speed', 'mph']] = game_data.wind_speed.str.split(" ", expand=True)
+    game_data['wind_speed'] = pd.to_numeric(game_data['wind_speed'])
+    game_data[['start_time', 'ampm']] = game_data.start_time.str.split(" ", expand=True)
+    game_data[['hour', 'min']] = game_data.start_time.str.split(":", expand=True)
+    game_data['hour'] = pd.to_numeric(game_data['hour'])
+    game_data['min'] = pd.to_numeric(game_data['min'])
+
+    game_data['start_time'] = game_data['hour']
+
+    game_data = game_data.filter(items=['month','day','outcome','away_final_score','home_final_score','elapsed_time', 'attendance', 'start_time','wind_speed','wind_direction','temp','weather'])
+    game_data.to_csv("gameday_factors.csv")
+
+    sns.set()
+    plt.figure(figsize=(25, 25))
+    start_time_order = [11,12,1,2,3,4,5,6,7,8,9,10]
+    month_order = ["March","April","May","June","July","August","September","October"]
+    day_order = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
+
+    if x == "month":
+        order = month_order
+    elif x == "day":
+        order = day_order
+    elif x == "start_time":
+        order = start_time_order
+    else:
+        order = None
+
+    sns.barplot(x=x, y=y, data=game_data, order=order, hue=hue)
 
 #printing menu including available stats and options to predict or graph
 def print_menu():
