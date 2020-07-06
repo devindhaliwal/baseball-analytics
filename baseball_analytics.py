@@ -4,6 +4,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn import linear_model
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier
 import matplotlib.pyplot as plt
 import pickle
 import seaborn as sns
@@ -273,14 +274,15 @@ def predict_outcome():
     game_data.to_csv("game_outcomes_preprocessed.csv")
 
     best_acc = 0
-    for i in range(10):
+    for i in range(5):
 
         x_o = game_data.drop(['outcome'], axis=1)
         y_o = game_data['outcome']
 
-        x_train, x_test, y_train, y_test = train_test_split(x_o, y_o, test_size=0.1)
-
-        model = KNeighborsClassifier(n_neighbors=137, p=1)
+        x_train, x_test, y_train, y_test = train_test_split(x_o, y_o, test_size=0.01)
+        print("loading...")
+        #model = KNeighborsClassifier(n_neighbors=137, p=1)
+        model = MLPClassifier(solver="adam",hidden_layer_sizes=(57,57),max_iter=1000,activation="logistic")
         model.fit(x_train, y_train)
 
         acc = model.score(x_test, y_test) * 100
@@ -312,7 +314,8 @@ def predict_outcome():
     print('Best n_neighbors:', best_model.best_estimator_.get_params()['n_neighbors'])
     print('Best weight:', best_model.best_estimator_.get_params()['weights'])
     """
-    
+
+#graphing gameday factors
 def visualize_gameday_factors(x=None, y=None, hue=None):
 
     game_data = pd.read_csv("games.csv")
@@ -329,7 +332,6 @@ def visualize_gameday_factors(x=None, y=None, hue=None):
     for i in game_data.attendance:
         i = round(i / 5000) * 5000
         attendance.append(i)
-
 
     elapsed_time = []
     for i in game_data.elapsed_time:
@@ -410,6 +412,7 @@ def main():
         else:
             break
 
+#visualize_gameday_factors()
 #predict_outcome()
 #main()
 
