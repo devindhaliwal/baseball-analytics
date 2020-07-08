@@ -139,4 +139,4 @@ def resources():
     return render_template("resources.html")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)
