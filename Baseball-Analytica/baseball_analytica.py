@@ -531,7 +531,7 @@ def visualize_gameday_factors(x, y, hue):
 
     start_time_order = [11,12,1,2,3,4,5,6,7,8,9,10]
     month_order = ["March","April","May","June","July","August","September","October"]
-    day_order = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
+    day_order = [" Monday"," Tuesday"," Wednesday"," Thursday"," Friday"," Saturday"," Sunday"]
 
     if x == "month":
         order = month_order
