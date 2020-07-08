@@ -30,8 +30,8 @@
 {% block content %}
 <div class="jumbotron jumbotron-fluid">
   <div class="container">
-    <h1 class="display-4">Gameday Factors Visualization</h1>
-    <p class="lead">Choose from a variety of gameday factors and see how they affect each other and are related.</p>
+    <h1 class="display-4">Gameday factors visualization</h1>
+    <p class="lead">Choose from a variety of gameday factors and see how they affect each other.</p>
   </div>
 </div>
 
@@ -55,7 +55,8 @@
               </button>
             </div>
             <div class="modal-body">
-              <p>Hue: Further Breakdown of x axis by certain feature.</p>
+              <p>Hue: Further breakdown of X-Axis choice by hue choice.</p>
+              <p>Example: If I wanted to see attendance by each weekday of each month, X-Axis would be "Month", Y-Axis would be "Attendance", and Hue would be "Day".</p>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-dark" data-dismiss="modal">Close</button>
@@ -75,7 +76,7 @@
 
 <div class="styleform">
   <form action="#" method="POST">
-		<p style="margin-left: 10px"><label for="x"><b>X Axis:</b></label></p>
+		<p style="margin-left: 10px"><label for="x"><b>X-Axis:</b></label></p>
       <p style="margin-left: 10px"><select name="x" id="x" class="form-control"></p>
         <option value="month">Month</option>
         <option value="day">Day</option>
@@ -89,7 +90,7 @@
         <option value="away_final_score">Away Final Score</option>
         <option value="home_final_score">Home Final Score</option>
       </select>
-		<p style="margin-left: 10px"><label for="y"><b>Y Axis:</b></label></p>
+		<p style="margin-left: 10px"><label for="y"><b>Y-Axis:</b></label></p>
       <p style="margin-left: 10px"><select name="y" id="y" class="form-control"></p>
         <option value="attendance">Attendance</option>
         <option value="elapsed_time">Game Length (min)</option>

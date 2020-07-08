@@ -30,9 +30,9 @@
 {% block content %}
 <div class="jumbotron jumbotron-fluid">
   <div class="container">
-    <h1 class="display-4">Stat Impact on a Team's Wins</h1>
-    <p class="lead">Enter a team, stat, and start year to see how that stat impacted a team's wins overtime.</p>
-    <p class="lead">Uncover which stats have led to your favorite team's rise and fall.</p>
+    <h1 class="display-4">Impact of a stat on wins over time</h1>
+    <p class="lead">Enter a stat, team and start year to see how that stat impacted a team's wins over time.</p>
+    <p class="lead">Uncover which stats have led to your favorite team's rise or fall.</p>
   </div>
 </div>
 
@@ -104,7 +104,7 @@
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLabel1">Availible Teams</h5>
+              <h5 class="modal-title" id="exampleModalLabel1">Available Teams</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -113,33 +113,33 @@
               <br>BOS: Boston Red Sox</br>
               <br>LAD: Los Angeles Dodgers</br>
               <br>ATL: Atlanta Braves</br>
-              <br>CHW: Chicago White Sox</br>
+              <br>CWS: Chicago White Sox</br>
               <br>CHC: Chicago Cubs</br>
-              <br>CIN: Cincinati Reds</br>
-              <br>CLE: Clevland Indians</br> 
+              <br>CIN: Cincinnati Reds</br>
+              <br>CLE: Cleveland Indians</br> 
               <br>DET: Detroit Tigers</br> 
               <br>SFG: San Francisco Giants</br> 
               <br>NYY: New York Yankees</br> 
               <br>OAK: Oakland A's</br> 
-              <br>PHI: Philidelphia Phillies</br> 
-              <br>PIT: Pittsburg Pirates</br> 
+              <br>PHI: Philadelphia Phillies</br> 
+              <br>PIT: Pittsburgh Pirates</br> 
               <br>BAL: Baltimore Orioles</br> 
               <br>STL: St. Louis Cardinals</br> 
               <br>MIN: Minnesota Twins</br>
-              <br>ANA: Los Angeles Angels</br>
+              <br>LAA: Los Angeles Angels</br>
               <br>TEX: Texas Rangers</br>
               <br>HOU: Houston Astros</br>
               <br>NYM: New York Mets</br>
-              <br>KCR: Kansas City Royals</br> 
-              <br>WSN: Washington Nationals</br> 
-              <br>SDP: San Diego Padres</br> 
-              <br>MIL: Milwuake Brewers</br> 
+              <br>KC: Kansas City Royals</br> 
+              <br>WSH: Washington Nationals</br> 
+              <br>SD: San Diego Padres</br> 
+              <br>MIL: Milwaukee Brewers</br> 
               <br>SEA: Seattle Mariners</br>
               <br>TOR: Toronto Blue Jays</br> 
               <br>COL: Colorado Rockies</br> 
-              <br>FLA: Miami Marlins</br> 
+              <br>MIA: Miami Marlins</br> 
               <br>ARI: Arizona Diamondbacks</br> 
-              <br>TBD: Tampa Bay Rays</br>
+              <br>TB: Tampa Bay Rays</br>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-dark" data-dismiss="modal">Close</button>
@@ -159,13 +159,13 @@
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLabel2">Availible Start Years</h5>
+              <h5 class="modal-title" id="exampleModalLabel2">Available Start Years</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
             <div class="modal-body">
-              You can select a start year between 1916 - 2017 that will show you data from that year through 2019.
+              You can select a start year between 1916 and 2017 to show data from that year through 2019.
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-dark" data-dismiss="modal">Close</button>
@@ -220,7 +220,7 @@
         <option value="BOS">BOS</option>
         <option value="LAD">LAD</option>
         <option value="ATL">ATL</option>
-        <option value="CHW">CHW</option>
+        <option value="CHW">CWS</option>
         <option value="CHC">CHC</option>
         <option value="CIN">CIN</option>
         <option value="CLE">CLE</option>
@@ -233,20 +233,20 @@
         <option value="BAL">BAL</option>
         <option value="STL">STL</option>
         <option value="MIN">MIN</option>
-        <option value="ANA">ANA</option>
+        <option value="ANA">LAA</option>
         <option value="TEX">TEX</option>
         <option value="HOU">HOU</option>
         <option value="NYM">NYM</option>
-        <option value="KCR">KCR</option>
-        <option value="WSN">WSN</option>
-        <option value="SDP">SDP</option>
+        <option value="KCR">KC</option>
+        <option value="WSN">WSH</option>
+        <option value="SDP">SD</option>
         <option value="MIL">MIL</option>
         <option value="SEA">SEA</option>
         <option value="TOR">TOR</option>
         <option value="COL">COL</option>
-        <option value="FLA">FLA</option>
+        <option value="FLA">MIA</option>
         <option value="ARI">ARI</option>
-        <option value="TBD">TBD</option>
+        <option value="TBD">TB</option>
       </select>
 		<p style="margin-left: 10px"><label for="year"><b>Start Year:</b></label></p>
       <p style="margin-left: 10px"><select name="year" id="year" class="form-control"></p>
