@@ -482,9 +482,9 @@ def predict_outcome(month_, day_, start_time_, weather_, temp_, wind_, wind_spee
     outcome = model.predict(df_predict)
 
     if outcome == 1:
-        result = "Home Team Wins"
+        result = "Home team wins"
     else:
-        result = "Away Team Wins"
+        result = "Away team wins"
 
     return result
 
