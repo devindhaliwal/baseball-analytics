@@ -5,11 +5,16 @@ import seaborn as sns
 import time
 import matplotlib
 import datetime
+import boto3
+import ssl
+import io
+ssl._create_default_https_context = ssl._create_unverified_context
 
 matplotlib.use('Agg')
 
 #getting data
-data = pd.read_csv("teams.csv")
+url = "https://raw.githubusercontent.com/devindhaliwal/baseball-analytics/master/Baseball-Analytica/Teams.csv"
+data = pd.read_csv(url, sep=",")
 data = data.filter(items=['franchID','yearID','AB','R','H','2B','3B','HR','BB','SO','SB','CS','W','RA','ER','ERA','CG','SHO','SV','HA','HRA','BBA','SOA','E','DP','FP'])
 data = data.query('yearID >= 1916')
 data = data.rename(columns={'franchID':'Team','yearID':'Year'})
@@ -44,9 +49,15 @@ def graph_stat(stat):
         fig = plt.figure(figsize=(12, 10))
         sns.set()
         sns.regplot(x=stat, y='W', data=data_comb, line_kws={'color': 'red'})
-        new_graph_name = "static/graphs/stat_graph_" + str(time.time()) + ".png"
-        fig.savefig(new_graph_name)
-        return new_graph_name
+        new_graph_name_im = "stat_graph_" + str(time.time()) + ".png"
+        img_data = io.BytesIO()
+        fig.savefig(img_data, format='png')
+        img_data.seek(0)
+        image = img_data.read()
+        s3 = boto3.resource('s3')
+        s3.Object("baseball-analytica-graphs", new_graph_name_im).put(ACL='public-read', Body=bytes(image))
+        link = "https://baseball-analytica-graphs.s3-us-west-1.amazonaws.com/"+new_graph_name_im
+        return link
     else:
         return "Invalid Input"
 
@@ -67,9 +78,15 @@ def graph_team_stat(stat, team, year):
                 ax2.yaxis.label.set_color('r')
                 ax.set_title(team)
                 fig.legend(labels=[stat, 'Wins'])
-                new_graph_name = "static/graphs/team_stat_graph_" + str(time.time()) + ".png"
-                fig.savefig(new_graph_name)
-                return new_graph_name
+                new_graph_name_im = "team_stat_graph_" + str(time.time()) + ".png"
+                img_data = io.BytesIO()
+                fig.savefig(img_data, format='png')
+                img_data.seek(0)
+                image = img_data.read()
+                s3 = boto3.resource('s3')
+                s3.Object("baseball-analytica-graphs", new_graph_name_im).put(ACL='public-read', Body=bytes(image))
+                link = "https://baseball-analytica-graphs.s3-us-west-1.amazonaws.com/" + new_graph_name_im
+                return link
             else:
                 return "Invalid Input"
         else:
@@ -314,7 +331,9 @@ def predict_wins(AB, R, H, _2B, _3B, HR, BB, SO, SB, CS, RA, ER, ERA, CG, SHO,
 
 
 def predict_outcome(month_, day_, start_time_, weather_, temp_, wind_, wind_speed_, attendance_, elapsed_time_):
-    game_data = pd.read_csv("games.csv")
+
+    url_ = "https://raw.githubusercontent.com/devindhaliwal/baseball-analytics/master/Baseball-Analytica/games.csv"
+    game_data = pd.read_csv(url_, sep=",")
     game_data[['wind_speed', 'wind_direction']] = game_data.wind.str.split(",", expand=True)
     game_data[['temp', 'weather']] = game_data.weather.str.split(",", expand=True)
 
@@ -471,7 +490,8 @@ def predict_outcome(month_, day_, start_time_, weather_, temp_, wind_, wind_spee
 
 def visualize_gameday_factors(x, y, hue):
 
-    game_data = pd.read_csv("games.csv")
+    url_ = "https://raw.githubusercontent.com/devindhaliwal/baseball-analytics/master/Baseball-Analytica/games.csv"
+    game_data = pd.read_csv(url_, sep=",")
     game_data[['wind_speed', 'wind_direction']] = game_data.wind.str.split(",", expand=True)
     game_data[['temp', 'weather']] = game_data.weather.str.split(",", expand=True)
 
@@ -525,6 +545,12 @@ def visualize_gameday_factors(x, y, hue):
     sns.set()
     fig = plt.figure(figsize=(17, 10))
     sns.barplot(x=x, y=y, data=game_data, order=order, hue=hue)
-    new_graph_name = "static/graphs/gameday_factors_graph_" + str(time.time()) + ".png"
-    fig.savefig(new_graph_name)
-    return new_graph_name
+    new_graph_name_im = "gameday_factors_graph_" + str(time.time()) + ".png"
+    img_data = io.BytesIO()
+    fig.savefig(img_data, format='png')
+    img_data.seek(0)
+    image = img_data.read()
+    s3 = boto3.resource('s3')
+    s3.Object("baseball-analytica-graphs", new_graph_name_im).put(ACL='public-read', Body=bytes(image))
+    link = "https://baseball-analytica-graphs.s3-us-west-1.amazonaws.com/" + new_graph_name_im
+    return link
