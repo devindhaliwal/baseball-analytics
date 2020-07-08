@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Baseball Analytica{% endblock %}
+{% block bar %}
+<div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link active" href="{{ url_for('home') }}">Home</a>
+        </li>
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="{{ url_for('data') }}" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Data
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" href="{{ url_for('predict_wins') }}">Predict wins</a>
+              <a class="dropdown-item" href="{{ url_for('predict_outcome') }}">Predict game outcome</a>
+              <a class="dropdown-item" href="{{ url_for('stat_visualization') }}">Graph a specific stat's impact on wins</a>
+              <a class="dropdown-item" href="{{ url_for('team_stat_visualization') }}">Graph a specific stat's impact on a team's wins over time</a>
+              <a class="dropdown-item" href="{{ url_for('gameday_factors_visualization') }}">Graph gameday factors</a>
+            </div>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('articles') }}">Articles</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('about') }}">About</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+{% block content %}
+
+<style>
+.carousel {
+  margin-bottom: 4rem;
+}
+/* Since positioning the image, we need to help out the caption */
+.carousel-caption {
+  bottom: 3rem;
+  z-index: 10;
+}
+
+/* Declare heights because of positioning of img element */
+.carousel-item {
+  height: 32rem;
+}
+.carousel-item > img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 100%;
+  height: 32rem;
+}
+
+.marketing .col-lg-4 {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+.marketing h2 {
+  font-weight: 400;
+}
+.marketing .col-lg-4 p {
+  margin-right: .75rem;
+  margin-left: .75rem;
+}
+</style>
+
+<div id="carouselExampleCaptions" class="carousel slide carousel-fade" data-ride="carousel">
+  <ol class="carousel-indicators">
+    <li data-target="#carouselExampleCaptions" data-slide-to="0" class="active"></li>
+    <li data-target="#carouselExampleCaptions" data-slide-to="1"></li>
+  </ol>
+  <div class="carousel-inner">
+    <div class="carousel-item active">
+      <img src="https://baseball-analytica-images.s3-us-west-1.amazonaws.com/BA-Logo.png" class="d-block w-100" alt="...">
+      <div class="carousel-caption d-none d-md-block">
+        <h5>Baseball Analytica</h5>
+        <p>Explore and understand the importance of data in baseball.</p>
+      </div>
+    </div>
+    <div class="carousel-item">
+      <img src="https://baseball-analytica-images.s3-us-west-1.amazonaws.com/ERA.png" class="d-block w-100" alt="...">
+      <div class="carousel-caption d-none d-md-block">
+        <h5 class="text-dark">Read Data-Driven Opinion Articles</h5>
+        <p class="text-dark"> Most Recent: In a 60-Game Schedule, History Suggests that Pitching Rules.</p>
+      </div>
+    </div>
+  </div>
+  <a class="carousel-control-prev" href="#carouselExampleCaptions" role="button" data-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="sr-only">Previous</span>
+  </a>
+  <a class="carousel-control-next" href="#carouselExampleCaptions" role="button" data-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="sr-only">Next</span>
+  </a>
+</div>
+
+<div class="container marketing">
+
+    <!-- Three columns of text below the carousel -->
+    <div class="row">
+      <div class="col-lg-4">
+        <svg class="bd-placeholder-img rounded-circle" width="140" height="140" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: 140x140"><title>Placeholder</title><rect width="100%" height="100%" fill="#DC143C"/><text x="50%" y="50%" fill="#DC143C" dy=".3em">140x140</text></svg>
+        <h2>Understand the Impact of Stats</h2>
+        <p>Predict wins and visualize a statistic's impact on team outcomes to see which stats lead to the most success and why.</p>
+        <p><a href="{{ url_for('data') }}" class="btn btn-danger">Explore Data</a></p>
+      </div><!-- /.col-lg-4 -->
+      <div class="col-lg-4">
+        <svg class="bd-placeholder-img rounded-circle" width="140" height="140" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: 140x140"><title>Placeholder</title><rect width="100%" height="100%" fill="#DC143C"/><text x="50%" y="50%" fill="#DC143C" dy=".3em">140x140</text></svg>
+        <h2>Read About Data in Baseball</h2>
+        <p>We write bi-weekly articles discussing different topics in baseball with data-driven arguments and analysis.</p>
+        <p><a href="{{ url_for('articles') }}" class="btn btn-danger">Articles</a></p>
+      </div><!-- /.col-lg-4 -->
+      <div class="col-lg-4">
+        <svg class="bd-placeholder-img rounded-circle" width="140" height="140" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: 140x140"><title>Placeholder</title><rect width="100%" height="100%" fill="#DC143C"/><text x="50%" y="50%" fill="#DC143C" dy=".3em">140x140</text></svg>
+        <h2>More Resources for Exploration</h2>
+        <p>A list of some more websites, articles, and datasets if you want to further your understanding.</p>
+        <p><a href="{{ url_for('resources') }}" class="btn btn-danger">Resources</a></p>
+      </div><!-- /.col-lg-4 -->
+    </div><!-- /.row -->
+
+
+  
+  </div>
+  {% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Resources{% endblock %}
+{% block bar %}
+<div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+        </li>
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="{{ url_for('data') }}" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Data
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" href="{{ url_for('predict_wins') }}">Predict wins</a>
+              <a class="dropdown-item" href="{{ url_for('predict_outcome') }}">Predict game outcome</a>
+              <a class="dropdown-item" href="{{ url_for('stat_visualization') }}">Graph a specific stat's impact on wins</a>
+              <a class="dropdown-item" href="{{ url_for('team_stat_visualization') }}">Graph a specific stat's impact on a team's wins over time</a>
+              <a class="dropdown-item" href="{{ url_for('gameday_factors_visualization') }}">Graph gameday factors</a>
+            </div>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('articles') }}">Articles</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('about') }}">About</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+{% block content %}
+<style>
+  p {
+      margin-left: 215px;
+      margin-right: 215px;
+  }
+</style>
+<br>
+<center>
+<h1>List of More Resources</h1>
+</center>
+<br>
+<p>Lahman's Baseball Database: http://www.seanlahman.com/baseball-archive/statistics/</p>
+<p>Beginners Guide to Baseball Analytics: https://fansided.com/2017/03/30/beginners-guide-baseball-analytics/</p>
+<p>How analytics have thrown a curveball at the MLB playoffs: https://www.digitaltrends.com/features/mlb-playoffs-baseball-analytics-sabermetrics/</p>
+<p> Andy Andres: "Sabermetrics 101: Introduction to Baseball Analytics" | Talks at Google: https://www.youtube.com/watch?v=wu2twZdrM-E</p>
+<p>A Guide to Sabermetric Research: https://sabr.org/sabermetrics</p>
+<p>A sabermetric primer: Understanding advanced baseball metrics: https://theathletic.com/255898/2018/02/28/a-sabermetric-primer-understanding-advanced-baseball-metrics/</p>
+<p>MLB Advanced Stats: http://m.mlb.com/glossary/advanced-stats</p>
+
+{% endblock %}

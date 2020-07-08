@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}Explore Baseball Data{% endblock %}
+{% block bar %}
+<div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+        </li>
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle active" href="{{ url_for('data') }}" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Data
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" href="{{ url_for('predict_wins') }}">Predict wins</a>
+              <a class="dropdown-item" href="{{ url_for('predict_outcome') }}">Predict game outcome</a>
+              <a class="dropdown-item" href="{{ url_for('stat_visualization') }}">Graph a specific stat's impact on wins</a>
+              <a class="dropdown-item" href="{{ url_for('team_stat_visualization') }}">Graph a specific stat's impact on a team's wins over time</a>
+              <a class="dropdown-item" href="{{ url_for('gameday_factors_visualization') }}">Graph gameday factors</a>
+            </div>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('articles') }}">Articles</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('about') }}">About</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+{% block content %}
+<div class="jumbotron jumbotron-fluid">
+  <div class="container">
+    <h1 class="display-4">Predict Game Outcome</h1>
+    <p class="lead">Enter a gameday factors to predict whether the home or away team will win.</p>
+  </div>
+</div>
+
+<style>
+  .styleform label{float:left;}
+  .styleform input{margin-left:200px;} 
+  .styleform .clear{clear:both;}
+</style>
+
+<div class="styleform">
+  <form action="#" method="POST">
+		<p style="margin-left: 10px"><label for="month"><b>Month:</b></label></p>
+      <p style="margin-left: 10px"><select name="month" id="month" class="form-control"></p>
+        <option value="March">March</option>
+        <option value="April">April</option>
+        <option value="May">May</option>
+        <option value="June">June</option>
+        <option value="July">July</option>
+        <option value="August">August</option>
+        <option value="September">September</option>
+      </select>
+		<p style="margin-left: 10px"><label for="day"><b>Day:</b></label></p>
+      <p style="margin-left: 10px"><select name="day" id="day" class="form-control"></p>
+        <option value="Monday">Monday</option>
+        <option value="Tuesday">Tuesday</option>
+        <option value="Wednesday">Wednesday</option>
+        <option value="Thursday">Thursday</option>
+        <option value="Friday">Friday</option>
+        <option value="Saturday">Saturday</option>
+        <option value="Sunday">Sunday</option>
+      </select>
+		<p style="margin-left: 10px"><label for="start_time"><b>Start Time:</b></label></p>
+      <p style="margin-left: 10px"><select name="start_time" id="start_time" class="form-control"></p>
+        <option value="day">Day</option>
+        <option value="night">Night</option>
+      </select>
+    <p style="margin-left: 10px"><label for="weather"><b>Weather:</b></label></p>
+      <p style="margin-left: 10px"><select name="weather" id="weather" class="form-control"></p>
+        <option value="clear">Clear</option>
+        <option value="cloudy">Cloudy</option>
+        <option value="dome">Dome</option>
+        <option value="drizzle">Drizzle</option>
+        <option value="overcast">Overcast</option>
+        <option value="partly cloudy">Partly Cloudy</option>
+        <option value="rain">Rain</option>
+        <option value="sunny">Sunny</option>
+        <option value="snow">Snow</option>
+        <option value="roof closed">Roof Closed</option>
+      </select>
+    <p style="margin-left: 10px"><label for="temp"><b>Temp:</b></label></p>
+      <p style="margin-left: 10px"><select name="temp" id="temp" class="form-control"></p>
+        <option value="30-59">30-59 degrees</option>
+        <option value="60-69">60-69 degrees</option>
+        <option value="70-79">70-79 degrees</option>
+        <option value="80-89">80-89 degrees</option>
+        <option value="90-99">90-99 degrees</option>
+        <option value="100+">100+ degrees</option>
+      </select>
+    <p style="margin-left: 10px"><label for="wind"><b>Wind Direction:</b></label></p>
+      <p style="margin-left: 10px"><select name="wind" id="wind" class="form-control"></p>
+        <option value="Calm">Calm</option>
+        <option value="None">None</option>
+        <option value="Varies">Varies</option>
+        <option value="In from CF">In from CF</option>
+        <option value="In from LF">In from LF</option>
+        <option value="In from RF">In from RF</option>
+        <option value="Out to CF">Out to CF</option>
+        <option value="Out to LF">Out to LF</option>
+        <option value="Out to RF">Out to RF</option>
+        <option value="R to L">R to L</option>
+        <option value="L to R">L to R</option>
+      </select>
+    <p style="margin-left: 10px"><label for="wind_speed"><b>Wind Speed:</b></label></p>
+      <p style="margin-left: 10px"><select name="wind_speed" id="wind_speed" class="form-control"></p>
+        <option value="0 mph">0 mph</option>
+        <option value="1-7 mph">1-7 mph</option>
+        <option value="8-12 mph">9-12 mph</option>
+        <option value="13+ mph">13+ mph</option>
+      </select>
+    <p style="margin-left: 10px"><label for="attendance"><b>Attendance:</b></label></p>
+      <p style="margin-left: 10px"><select name="attendance" id="attendance" class="form-control"></p>
+        <option value="0-9,999">0-9,999</option>
+        <option value="10,000-19,999">10,000-19,999</option>
+        <option value="20,000-29,999">20,000-29,999</option>
+        <option value="30,000-39,999">30,000-39,999</option>
+        <option value="40,000-49,999">40,000-49,999</option>
+        <option value="50,000-60,000">50,000-60,000</option>
+      </select>
+    <p style="margin-left: 10px"><label for="elapsed_time"><b>Game Length:</b></label></p>
+      <p style="margin-left: 10px"><select name="elapsed_time" id="elapsed_time" class="form-control"></p>
+        <option value="more than 3 hours">More than 3 Hours</option>
+        <option value="less than 3 hours">Less than 3 Hours</option>
+      </select>
+	 <p style="margin-left: 10px"><br><button type="submit" class="btn btn-danger">Predict Outcome</button></br></p>
+  </form>
+</div>
+<p style="margin-left: 10px">{{ output }}</p>
+{% endblock %}
